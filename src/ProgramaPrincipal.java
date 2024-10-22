@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class ProgramaPrincipal {
     static Connection conexion;
     static Scanner sc = new Scanner(System.in);
+
     public static void ejecutar(Connection conexion_inicializada, BufferedWriter log_writer) throws SQLException {
         conexion = conexion_inicializada; // Guardar aquí para facilitar su acceso.
 
@@ -28,6 +29,8 @@ public class ProgramaPrincipal {
             try {
                 opcion = sc.nextInt();
                 sc.nextLine();
+
+                Inicializador.escribe_log(log_writer, Inicializador.log_info, "Opción elegida: " + opcion);
 
                 switch (opcion) {
                     case 1 -> mostrarPeluches(log_writer);
@@ -79,11 +82,17 @@ public class ProgramaPrincipal {
 
                     default -> System.out.println("Opción incorrecta.");
                 }
-            } catch (InputMismatchException _) {}
+            } catch (InputMismatchException e) {
+                sc.nextLine(); // Hace falta luego de que el nextInt() falle.
+                System.out.println("Opción incorrecta.");
+            }
             esperar_enter();
         } while (ejecucion);
     }
+
     private static void darVIP(BufferedWriter log_writer, String NIF) throws SQLException {
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Ejecutando darVip.");
+
         ResultSet resultados = Inicializador.lanzar_consulta("select iEstadoVIP from clientes WHERE cNIF = '" + NIF + "';", log_writer, true);
 
         if (resultados == null) {
@@ -96,6 +105,7 @@ public class ProgramaPrincipal {
                             "call darVIP('" + NIF + "');", log_writer, false);
 
                     System.out.println("Se ha dado VIP al cliente.");
+                    Inicializador.escribe_log(log_writer, Inicializador.log_info, "Se ha dado VIP al cliente con NIF " + NIF + ".");
                 } else {
                     System.out.println("El cliente ya tiene VIP.");
                 }
@@ -107,20 +117,25 @@ public class ProgramaPrincipal {
 
     private static void darDeAlta(BufferedWriter log_writer, String NIF, String nombre,
                                   String apellido1, String apellido2, String direccion) {
-       Inicializador.lanzar_consulta(
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Ejecutando darDeAlta.");
+
+        Inicializador.lanzar_consulta(
                 "call insertarNuevoCliente(" +
                String.format("'%s', '%s', '%s', '%s', '%s', 0);", NIF, nombre, apellido1, apellido2, direccion), log_writer, false);
 
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Dado de alta a un nuevo cliente con NIF " + NIF + ".");
         System.out.println("Cliente dado de alta.");
     }
 
     private static void mostrarPeluches(BufferedWriter log_writer) throws SQLException {
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Ejecutando mostrarPeluches.");
         ResultSet resultados = Inicializador.lanzar_consulta("select * from productos", log_writer, true);
 
         if (resultados == null) {
             System.out.println("No se ha podido obtener los datos de la base de datos.");
             Inicializador.escribe_log(log_writer, Inicializador.log_error, "No se ha podido obtener los datos.");
         } else {
+            Inicializador.escribe_log(log_writer, Inicializador.log_info, "Accedido a la lista de peluches.");
             if (resultados.next()) {
                 do {
                     String id = "ID" + resultados.getString(1);
@@ -142,6 +157,8 @@ public class ProgramaPrincipal {
     }
 
     private static void mostrarClientes(BufferedWriter log_writer) throws SQLException {
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Ejecutando mostrarClientes.");
+
         ResultSet resultados = Inicializador.lanzar_consulta(
                 "select cNIF, concat(cNombre, ' ', cApellido1, ' ', cApellido2), cDireccion, iEstadoVIP " +
                 "from clientes", log_writer, true);
@@ -150,6 +167,7 @@ public class ProgramaPrincipal {
             System.out.println("No se ha podido obtener los datos de la base de datos.");
             Inicializador.escribe_log(log_writer, Inicializador.log_error, "No se ha podido obtener los datos.");
         } else {
+            Inicializador.escribe_log(log_writer, Inicializador.log_info, "Accedido a la lista de clientes.");
             if (resultados.next()) {
                 do {
                     String NIF = "NIF: " + resultados.getString(1);
@@ -157,7 +175,8 @@ public class ProgramaPrincipal {
                     String direccion = resultados.getString(3);
                     boolean VIP = (resultados.getInt(4) == 1);
 
-                    System.out.println(NIF + " - " + (VIP ? "(VIP) " : "") +  nombre + " con dirección: " + direccion + ".");
+                    System.out.println(NIF + " - " + (VIP ? "(VIP) " : "") +
+                            nombre + " con dirección: " + direccion + ".");
                 } while (resultados.next());
             } else {
                 System.out.println("Sin clientes.");
@@ -166,6 +185,8 @@ public class ProgramaPrincipal {
     }
 
     private static void obtenerCarritoCompra(BufferedWriter log_writer, String NIF) throws SQLException {
+        Inicializador.escribe_log(log_writer, Inicializador.log_info, "Ejecutando obtenerCarritoCompra.");
+
         ResultSet resultados = Inicializador.lanzar_consulta(
                 "select concat(cNombre, ' ', cApellido1, ' ', cApellido2), cEspeciePokemon, cTipo, dPrecio, iCantidad from carrito_compra \n" +
                         "join clientes on clientes.cNIF = carrito_compra.cNIF\n" +
@@ -190,17 +211,23 @@ public class ProgramaPrincipal {
                     precioTotal += precio * cantidad;
                 } while (resultados.next());
                 System.out.println("Total: " + String.format("%.2f", precioTotal) + " €.");
+                Inicializador.escribe_log(log_writer, Inicializador.log_info,
+                        "Accedido al carrito de compra de " + NIF + "."
+                );
             } else {
                 resultados = Inicializador.lanzar_consulta(
-                        "select * from clientes where clientes.cNIF = '" + NIF + "';"
+                        "select concat(cNombre, ' ', cApellido1, ' ', cApellido2) from clientes where clientes.cNIF = '" + NIF + "';"
                         , log_writer, true);
 
                 if (resultados.next()) {
-                    System.out.println("Sin productos en el carrito de la compra.");
+                    System.out.println("Carrito de " + resultados.getString(1) + ":");
+                    System.out.println("> Sin productos en el carrito de la compra.");
+                    Inicializador.escribe_log(log_writer, Inicializador.log_info,
+                            "Accedido al carrito de compra de " + NIF + "."
+                    );
                 } else {
                     System.out.println("No existe ningún cliente con ese NIF.");
                 }
-
             }
         }
     }
@@ -211,6 +238,7 @@ public class ProgramaPrincipal {
     }
 
     private static boolean comprobarNIF(String NIF) {
+        // Este RegEx prueba si la cadena contiene 8 números y una letra al final.
         return NIF.matches("^\\d{8}[A-Z]$");
     }
 }

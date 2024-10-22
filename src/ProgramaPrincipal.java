@@ -84,7 +84,7 @@ public class ProgramaPrincipal {
         } while (ejecucion);
     }
     private static void darVIP(BufferedWriter log_writer, String NIF) throws SQLException {
-        ResultSet resultados = Inicializador.lanzar_consulta("select iEstadoVIP from pokeplushes.clientes WHERE cNIF = '" + NIF + "';", log_writer, true);
+        ResultSet resultados = Inicializador.lanzar_consulta("select iEstadoVIP from clientes WHERE cNIF = '" + NIF + "';", log_writer, true);
 
         if (resultados == null) {
             System.out.println("No se ha podido obtener los datos de la base de datos.");
@@ -93,7 +93,7 @@ public class ProgramaPrincipal {
             if (resultados.next()) {
                 if (!resultados.getBoolean(1)) {
                     Inicializador.lanzar_consulta(
-                            "call pokeplushes.darVIP('" + NIF + "');", log_writer, false);
+                            "call darVIP('" + NIF + "');", log_writer, false);
 
                     System.out.println("Se ha dado VIP al cliente.");
                 } else {
@@ -108,14 +108,14 @@ public class ProgramaPrincipal {
     private static void darDeAlta(BufferedWriter log_writer, String NIF, String nombre,
                                   String apellido1, String apellido2, String direccion) {
        Inicializador.lanzar_consulta(
-                "call pokeplushes.insertarNuevoCliente(" +
+                "call insertarNuevoCliente(" +
                String.format("'%s', '%s', '%s', '%s', '%s', 0);", NIF, nombre, apellido1, apellido2, direccion), log_writer, false);
 
         System.out.println("Cliente dado de alta.");
     }
 
     private static void mostrarPeluches(BufferedWriter log_writer) throws SQLException {
-        ResultSet resultados = Inicializador.lanzar_consulta("select * from pokeplushes.productos", log_writer, true);
+        ResultSet resultados = Inicializador.lanzar_consulta("select * from productos", log_writer, true);
 
         if (resultados == null) {
             System.out.println("No se ha podido obtener los datos de la base de datos.");
@@ -144,7 +144,7 @@ public class ProgramaPrincipal {
     private static void mostrarClientes(BufferedWriter log_writer) throws SQLException {
         ResultSet resultados = Inicializador.lanzar_consulta(
                 "select cNIF, concat(cNombre, ' ', cApellido1, ' ', cApellido2), cDireccion, iEstadoVIP " +
-                "from pokeplushes.clientes", log_writer, true);
+                "from clientes", log_writer, true);
 
         if (resultados == null) {
             System.out.println("No se ha podido obtener los datos de la base de datos.");
@@ -167,10 +167,10 @@ public class ProgramaPrincipal {
 
     private static void obtenerCarritoCompra(BufferedWriter log_writer, String NIF) throws SQLException {
         ResultSet resultados = Inicializador.lanzar_consulta(
-                "select concat(cNombre, ' ', cApellido1, ' ', cApellido2), cEspeciePokemon, cTipo, dPrecio, iCantidad from pokeplushes.carrito_compra \n" +
-                        "join pokeplushes.clientes on pokeplushes.clientes.cNIF = pokeplushes.carrito_compra.cNIF\n" +
-                        "join pokeplushes.productos on pokeplushes.productos.iCodigoProducto = pokeplushes.carrito_compra.iCodigoProducto\n" +
-                        "where pokeplushes.carrito_compra.cNIF = '" + NIF + "';"
+                "select concat(cNombre, ' ', cApellido1, ' ', cApellido2), cEspeciePokemon, cTipo, dPrecio, iCantidad from carrito_compra \n" +
+                        "join clientes on clientes.cNIF = carrito_compra.cNIF\n" +
+                        "join productos on productos.iCodigoProducto = carrito_compra.iCodigoProducto\n" +
+                        "where carrito_compra.cNIF = '" + NIF + "';"
                 , log_writer, true);
 
         if (resultados == null) {
@@ -192,7 +192,7 @@ public class ProgramaPrincipal {
                 System.out.println("Total: " + String.format("%.2f", precioTotal) + " €.");
             } else {
                 resultados = Inicializador.lanzar_consulta(
-                        "select * from pokeplushes.clientes where pokeplushes.clientes.cNIF = '" + NIF + "';"
+                        "select * from clientes where clientes.cNIF = '" + NIF + "';"
                         , log_writer, true);
 
                 if (resultados.next()) {

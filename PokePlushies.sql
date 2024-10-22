@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS pokeplushes;
+DROP DATABASE IF EXISTS pokeplushies;
 
-CREATE DATABASE pokeplushes;
+CREATE DATABASE pokeplushies;
 
-USE pokeplushes;
+USE pokeplushies;
 
 CREATE TABLE clientes (
 	cNIF char(9) PRIMARY KEY,
@@ -77,7 +77,7 @@ CREATE PROCEDURE insertarNuevoCliente(
     var_iEstadoVIP tinyint
 )
 BEGIN
-	INSERT INTO pokeplushes.clientes (cNIF, cNombre, cApellido1, cApellido2, cDireccion, iEstadoVIP) VALUES 
+	INSERT INTO clientes (cNIF, cNombre, cApellido1, cApellido2, cDireccion, iEstadoVIP) VALUES 
                 (var_cNIF, var_cNombre, var_cApellido1, var_cApellido2, var_cDireccion, var_iEstadoVIP);
 END//
 
@@ -85,5 +85,5 @@ CREATE PROCEDURE darVIP(
 	var_cNIF char(9)
 )
 BEGIN
-	UPDATE pokeplushes.clientes SET iEstadoVip = 1 WHERE cNIF = var_cNIF;
+	UPDATE clientes SET iEstadoVip = 1 WHERE cNIF = var_cNIF;
 END//

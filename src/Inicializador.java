@@ -75,7 +75,7 @@ public class Inicializador {
             Class.forName("com.mysql.cj.jdbc.Driver");
             escribe_log(log_writer, log_info, "Driver MySQL cargado");
 
-            conexion = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306", "desarrollador", "root");
+            conexion = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/pokeplushies", "desarrollador", "root");
             escribe_log(log_writer, log_info, "Conexión establecida");
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Error conectando: " + e);

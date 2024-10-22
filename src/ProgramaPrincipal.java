@@ -152,12 +152,12 @@ public class ProgramaPrincipal {
         } else {
             if (resultados.next()) {
                 do {
-                    String nif = "NIF: " + resultados.getString(1);
+                    String NIF = "NIF: " + resultados.getString(1);
                     String nombre = resultados.getString(2);
                     String direccion = resultados.getString(3);
                     boolean VIP = (resultados.getInt(4) == 1);
 
-                    System.out.println(nif + " - " + (VIP ? "(VIP) " : "") +  nombre + " con dirección: " + direccion + ".");
+                    System.out.println(NIF + " - " + (VIP ? "(VIP) " : "") +  nombre + " con dirección: " + direccion + ".");
                 } while (resultados.next());
             } else {
                 System.out.println("Sin clientes.");
